@@ -12,77 +12,89 @@ contrast in 1000ms.
 More on AIB: https://www.ncbi.nlm.nih.gov/pubmed/20462317
 """
 
-import expyriment
+from psychopy import data, visual, core, event
 import random
-import numpy as np
-import math
+from numpy import cos, sin, pi
 
-NTRIALS = 4
-ITI = 500  # inter trial interval
+# Create TrialHandler for two conditions: vertical or horizontal target
+visual_targets = [1,2] #1 = vertical, #2
+targets_responses = []
+for target in visual_targets: # Simplify?
+    correct_response = 'space'
+    targets_responses.append({'Target':target, 'CorrectResponse':correct_response})
+trials = data.TrialHandler(targets_responses, 8, method='random')
 
-## Initialization
-exp = expyriment.design.Experiment(name="Adaptation-Induced-Blindness")
-# Set develop mode. Comment for real experiment
-expyriment.control.set_develop_mode(on=True)
-expyriment.control.initialize(exp)
+# Create data table
+trials.data.addDataType('Response')
+trials.data.addDataType('Accuracy')
 
-## Creating the stimuli and trials
-# Determine the parameters of the Gabor (1 degree of visual angle = 1cm if the participant is 57.3cm away from the screen)
-cm_to_pix = 20 #Find pixels/cm value
-distance_Gabors = 6*cm_to_pix
-size_Gabors = 2*cm_to_pix
+#Create a window
+experiment_window = visual.Window([800,600],allowGUI=True,
+    monitor='testMonitor', units='deg')
 
-# Determine Gabor's positions
-angle_Gabor = 0
-for i in 8:
-    x_angle, y_angle = np.cos(math.radian(angle_Gabor)), np.sin(math.radian(angle_Gabor))
-    posGabor(i) = (distance_Gabors*x_angle, distance_Gabors*x_angle)
-    angle_Gabor = angle_Gabor + i*45
+#Stimuli
+target = visual.GratingStim(experiment_window, sf=1.5, size=2,
+    mask='gauss', ori=0)
+fixation = visual.TextStim(experiment_window,text=('+'),
+    alignHoriz="center", color = 'white')
+# Determine the 8 positions of the target (randomly picked during the trials)
+targetAngle = 0
+targetDistance = 6
+targetPositions = []
+for i in range(0,8):
+    xAngle, yAngle = cos(targetAngle), sin(targetAngle)
+    targetPositions.append([targetDistance*xAngle, targetDistance*yAngle])
+    targetAngle += pi/4
 
-# Make stimuli
-block = expyriment.design.Block(name="Block 1")
+# Set timer
+trial_timer = core.Clock()
 
-fixcross = expyriment.stimuli.FixCross()
-fixcross.preload()
-rect1 = expyriment.stimuli.Rectangle((50,50), position = (200, 0)) #Replace by Gabor Patch
-rect2 = expyriment.stimuli.Rectangle((50,50), position = (-200, 0))
-stim1, stim2 = expyriment.stimuli.BlankScreen(), expyriment.stimuli.BlankScreen()
-fixcross.plot(stim1)
-rect1.plot(stim1)
-stim1.preload()
-fixcross.plot(stim2)
-rect2.plot(stim2)
-stim2.preload()
+# display instructions and wait for key press
+message1 = visual.TextStim(experiment_window, pos=[0,+3],text='Hit a key when ready.')
+message2 = visual.TextStim(experiment_window, pos=[0,-3],
+    text='Instructions')
+message1.draw()
+message2.draw()
+fixation.draw()
+experiment_window.flip()
+event.waitKeys()
 
-instructions = expyriment.stimuli.TextScreen("Instructions", "Always look at the fixation cross; Between each trial you will have a period of adaptation ; When the adaptators disappear, press the 'y' key as quickly as possible if you see the target and the 'n' key if you didn't see it")
+# First adaptation period (30 sec)
 
-for i in range(NTRIALS):
-    trial = expyriment.design.Trial()
-    trial.add_stimulus(fixcross)
-    if random.choice((1, 2)) == 1:
-        trial.add_stimulus(stim1)
-    else:
-        trial.add_stimulus(stim2)
-    block.add_trial(trial, random_position=True)
+# Trials
+for trial in trials:
+    current_time = 0
+    trial_still_running = True
+    trial_timer.reset()
 
-exp.add_block(block)
+    # set location of stimuli
+    target.setPos(newPos = random.choice(targetPositions))  # Randomly pick one of the 8 positions
 
-kb = exp.keyboard  # response device
-#exp.data_variable_names(['key', 'rt'])
+    for frameN in range(120): #for exactly 120 frames i.e. 2000ms
+        current_time = trial_timer.getTime()
 
-## Run the experiment
-expyriment.control.start()
+        if frameN < 24:  # present fixation for 400ms
+            fixation.draw()
 
-for block in exp.blocks:
-    for trial in block.trials:
-        exp.clock.wait(ITI)
-        #trial.stimuli[0].plot(trial.stimuli[1])
-        trial.stimuli[0].present()
-        trial.stimuli[1].present()
-        key, rt = exp.keyboard.wait([expyriment.misc.constants.K_SPACE])
-        exp.data.add([block.name, trial.id, key, rt])
-        #key, rt =kb.wait(keys='s', duration=2000)
+        elif frameN >= 25 and frameN < 119:
+            fixation.draw()
+            if trial['Target'] == 1:
+                target.draw()
+            responded = event.getKeys()
+            if responded:
+                if trial['CorrectResponse'] == responded[0]:
+                    accuracy = 1
+                    timing = current_time
+            else: accuracy = 0
 
+        elif frameN >= 119:
+            if not responded:
+                accuracy = 0
 
-expyriment.control.end()
-#        trial.stimuli[0].present()
+        experiment_window.flip()
+
+experiment_window.close()
+core.quit()
+
+# Save data
+
