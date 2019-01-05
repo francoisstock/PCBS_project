@@ -17,12 +17,12 @@ import random
 from numpy import cos, sin, pi
 
 # Create TrialHandler for two conditions: vertical or horizontal target
-visual_targets = [1,2] #1 = vertical, #2
+visual_targets = [1,2] # 1 = vertical, 2 = horizontal
 targets_responses = []
 for target in visual_targets: # Simplify?
     correct_response = 'space'
     targets_responses.append({'Target':target, 'CorrectResponse':correct_response})
-trials = data.TrialHandler(targets_responses, 8, method='random')
+trials = data.TrialHandler(targets_responses, 2, method='random')
 
 # Create data table
 trials.data.addDataType('Response')
@@ -33,10 +33,11 @@ experiment_window = visual.Window([800,600],allowGUI=True,
     monitor='testMonitor', units='deg')
 
 #Stimuli
-target = visual.GratingStim(experiment_window, sf=1.5, size=2,
-    mask='gauss', ori=0)
+gabor = visual.GratingStim(experiment_window, sf=1.5, size=2,
+    mask='gauss', ori=0, phase= 0.5, contrast=1)
 fixation = visual.TextStim(experiment_window,text=('+'),
     alignHoriz="center", color = 'white')
+
 # Determine the 8 positions of the target (randomly picked during the trials)
 targetAngle = 0
 targetDistance = 6
@@ -59,7 +60,14 @@ fixation.draw()
 experiment_window.flip()
 event.waitKeys()
 
-# First adaptation period (30 sec)
+# First adaptation period (change to 30 sec)
+for frameN in range(200):
+    fixation.draw()
+    gabor.setPhase(0.05, '+')
+    for eachPosition in range(8):
+        gabor.setPos(newPos = targetPositions[eachPosition])
+        gabor.draw()
+    experiment_window.flip()
 
 # Trials
 for trial in trials:
@@ -67,19 +75,32 @@ for trial in trials:
     trial_still_running = True
     trial_timer.reset()
 
-    # set location of stimuli
-    target.setPos(newPos = random.choice(targetPositions))  # Randomly pick one of the 8 positions
+    # Set additional target parameters
+    gabor.setPos(newPos = random.choice(targetPositions))  # Randomly pick one of the 8 positions
+    gabor.setOri(newOri = 0) # Reset Ori
 
-    for frameN in range(120): #for exactly 120 frames i.e. 2000ms
+    # Re-adaptation (change to 5 sec)
+    for frameN in range(100):
+        fixation.draw()
+        gabor.setPhase(0.05, '+')
+        for eachPosition in range(8):
+            gabor.setPos(newPos = targetPositions[eachPosition])
+            gabor.draw()
+        experiment_window.flip()
+
+    for frameN in range(2000): #for exactly 120 frames i.e. 2000ms --> fix time from seconds to frame
         current_time = trial_timer.getTime()
 
-        if frameN < 24:  # present fixation for 400ms
+        if frameN < 400:  # present fixation for 400ms
             fixation.draw()
 
-        elif frameN >= 25 and frameN < 119:
+        elif frameN >= 401 and frameN < 1999:
             fixation.draw()
-            if trial['Target'] == 1:
-                target.draw()
+
+            if trial['Target'] == 2: # Horizontal target
+                gabor.setOri(newOri = 90)
+            gabor.draw()
+
             responded = event.getKeys()
             if responded:
                 if trial['CorrectResponse'] == responded[0]:
@@ -87,7 +108,8 @@ for trial in trials:
                     timing = current_time
             else: accuracy = 0
 
-        elif frameN >= 119:
+        elif frameN >= 1999:
+            fixation.draw()
             if not responded:
                 accuracy = 0
 
@@ -97,4 +119,3 @@ experiment_window.close()
 core.quit()
 
 # Save data
-
