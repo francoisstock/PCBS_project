@@ -1,59 +1,60 @@
 """
-Adaptation-Induced-Blindness (AIB) illusion
-
-In this illusion a Gabor patch is perceived unconsciously even though it
-reaches maximum contrast. Two steps:
- - Adaptation period: 8 gabor patches on a virtual circle around the fixation
-cross. They are presented at a maximal contrast and flicker with a speed of
-8Hz.
- - Stimulus presentation: one gabor is presented in one of the 8 positions. It
-gradually reaches maximal contrast in 1000ms and then decreases to minimal
-contrast in 1000ms.
-More on AIB: https://www.ncbi.nlm.nih.gov/pubmed/20462317
+Adaptation-Induced-Blindness (AIB)
 """
 
 from psychopy import data, visual, core, event
-import random
 from numpy import cos, sin, pi
 
-# Create TrialHandler for two conditions: vertical or horizontal target
-visual_targets = [1,2] # 1 = vertical, 2 = horizontal
-targets_responses = []
-for target in visual_targets: # Simplify?
-    correct_response = 'space'
-    targets_responses.append({'Target':target, 'CorrectResponse':correct_response})
-trials = data.TrialHandler(targets_responses, 2, method='random')
+def positionGabors(degree, n=8):
+    """ Returns a list with positions for n Gabors on an imaginary cycle"""
+    positions = []
+    for i in range(0, n):
+        positions.append([degree*cos(i*2*pi/n), degree*sin(i*2*pi/n)])
+    return positions
 
-# Create data table
-trials.data.addDataType('Response')
-trials.data.addDataType('Accuracy')
+def movingGabors(fix, gab, pos, freq, refRate):
+    """ Draws drifting Gabors at predefined frequency"""
+    gab.setPhase(freq/refRate, '+')
+    for i in range(len(pos)):
+        gab.setPos(newPos = pos[i])
+        gab.draw()
+    fix.draw()
+    experiment_window.flip()
 
-#Create a window
-experiment_window = visual.Window([800,600],allowGUI=True,
+
+trial_timer = core.Clock()
+refRate = 60 # 1 second
+# nTrials =
+
+experiment_window = visual.Window([800,600], allowGUI=True,
     monitor='testMonitor', units='deg')
 
-#Stimuli
-gabor = visual.GratingStim(experiment_window, sf=1.5, size=2,
+# Create TrialHandler for 16 conditions: two orientations and eight positions
+targetResponses = []
+targetPositions = positionGabors(degree=6)
+for i in range(16):
+    position = targetPositions[i%8]
+    correctResponse = 'space'
+    if i < 8:
+        orientation = 0 # vertical
+    else:
+        orientation = 90 # horizontal
+    targetResponses.append({'Orientation': orientation, 'Position': position,
+        'CorrectResponse':correctResponse})
+trials = data.TrialHandler(targetResponses, 1, method='random')
+
+# Create stimuli
+adaptor = visual.GratingStim(experiment_window, sf=1.5, size=2,
     mask='gauss', ori=0, phase= 0.5, contrast=1)
+target = visual.GratingStim(experiment_window, sf=1.5, size=2,
+    mask='gauss', ori=0, phase= 0.5, contrast=1) # will be modified during experiment
 fixation = visual.TextStim(experiment_window,text=('+'),
     alignHoriz="center", color = 'white')
-
-# Determine the 8 positions of the target (randomly picked during the trials)
-targetAngle = 0
-targetDistance = 6
-targetPositions = []
-for i in range(0,8):
-    xAngle, yAngle = cos(targetAngle), sin(targetAngle)
-    targetPositions.append([targetDistance*xAngle, targetDistance*yAngle])
-    targetAngle += pi/4
-
-# Set timer
-trial_timer = core.Clock()
 
 # display instructions and wait for key press
 message1 = visual.TextStim(experiment_window, pos=[0,+3],text='Hit a key when ready.')
 message2 = visual.TextStim(experiment_window, pos=[0,-3],
-    text='Instructions')
+    text='Look at the fixation cross /nPress space key when you see target')
 message1.draw()
 message2.draw()
 fixation.draw()
@@ -61,61 +62,33 @@ experiment_window.flip()
 event.waitKeys()
 
 # First adaptation period (change to 30 sec)
-for frameN in range(200):
-    fixation.draw()
-    gabor.setPhase(0.05, '+')
-    for eachPosition in range(8):
-        gabor.setPos(newPos = targetPositions[eachPosition])
-        gabor.draw()
-    experiment_window.flip()
+for frameN in range(refRate):
+    movingGabors(fixation, adaptor, positionGabors(degree=6), 8, refRate)
 
 # Trials
 for trial in trials:
-    current_time = 0
-    trial_still_running = True
-    trial_timer.reset()
+    # Re-adaptation
+    for frameN in range(refRate): # change to 5 sec
+        movingGabors(fixation, adaptor, positionGabors(degree=6), 8, refRate)
 
-    # Set additional target parameters
-    gabor.setPos(newPos = random.choice(targetPositions))  # Randomly pick one of the 8 positions
-    gabor.setOri(newOri = 0) # Reset Ori
+    #for frameN in range(0.4*refRate): # Wait for 400ms --> explain in report
+    fixation.draw()
+    experiment_window.flip()
+    core.wait(0.4)
 
-    # Re-adaptation (change to 5 sec)
-    for frameN in range(100):
+    # Presentation target
+    target.setPos(newPos = trial['Position'])
+    target.setOri(newOri = trial['Orientation'])
+    for frameN in range(2*refRate): #for exactly 120 frames i.e. 2000ms --> fix time from seconds to frame
+        if frameN <= refRate: # onset 1000ms
+            target.setContrast(newContrast = frameN/refRate)
+        else: # offset 1000ms
+            target.setContrast(newContrast = (2*refRate - frameN)/refRate)
+        target.draw()
         fixation.draw()
-        gabor.setPhase(0.05, '+')
-        for eachPosition in range(8):
-            gabor.setPos(newPos = targetPositions[eachPosition])
-            gabor.draw()
         experiment_window.flip()
 
-    for frameN in range(2000): #for exactly 120 frames i.e. 2000ms --> fix time from seconds to frame
-        current_time = trial_timer.getTime()
-
-        if frameN < 400:  # present fixation for 400ms
-            fixation.draw()
-
-        elif frameN >= 401 and frameN < 1999:
-            fixation.draw()
-
-            if trial['Target'] == 2: # Horizontal target
-                gabor.setOri(newOri = 90)
-            gabor.draw()
-
-            responded = event.getKeys()
-            if responded:
-                if trial['CorrectResponse'] == responded[0]:
-                    accuracy = 1
-                    timing = current_time
-            else: accuracy = 0
-
-        elif frameN >= 1999:
-            fixation.draw()
-            if not responded:
-                accuracy = 0
-
-        experiment_window.flip()
+core.wait(1)
 
 experiment_window.close()
 core.quit()
-
-# Save data
