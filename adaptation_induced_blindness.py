@@ -12,27 +12,37 @@ def positionGabors(degree, n=8):
         positions.append([degree*cos(i*2*pi/n), degree*sin(i*2*pi/n)])
     return positions
 
-def movingGabors(fix, gab, pos, freq, refRate):
+def movingGabors(fix, gabors, pos, freq, rate, sec):
     """ Draws drifting Gabors at predefined frequency"""
-    gab.setPhase(freq/refRate, '+')
-    for i in range(len(pos)):
-        gab.setPos(newPos = pos[i])
-        gab.draw()
-    fix.draw()
-    experiment_window.flip()
+    for frameN in range(sec*rate):
+        gabors.phases += freq/rate
+        gabors.draw()
+        fix.draw()
+        experiment_window.flip()
+
+def contrastGabor(fix, gabor, direction, rate, sec):
+    for frameN in range(sec*rate):
+        if direction == 'onset':
+            gabor.setContrast(newContrast = (frameN+1)/(sec*rate))
+        elif direction == 'offset':
+            gabor.setContrast(newContrast = (1 - (frameN+1)/(sec*rate)))
+        gabor.draw()
+        fix.draw()
+        experiment_window.flip()
 
 
 trial_timer = core.Clock()
-refRate = 60 # 1 second
-# nTrials =
+refRate = 60
+nConditions = 16 # 2 orientations and 8 positions
+nTrials = 16
 
-experiment_window = visual.Window([800,600], allowGUI=True,
+experiment_window = visual.Window([1366,768], allowGUI=True,
     monitor='testMonitor', units='deg')
 
-# Create TrialHandler for 16 conditions: two orientations and eight positions
+# Create TrialHandler for 16 conditions:
 targetResponses = []
 targetPositions = positionGabors(degree=6)
-for i in range(16):
+for i in range(nConditions):
     position = targetPositions[i%8]
     correctResponse = 'space'
     if i < 8:
@@ -41,13 +51,15 @@ for i in range(16):
         orientation = 90 # horizontal
     targetResponses.append({'Orientation': orientation, 'Position': position,
         'CorrectResponse':correctResponse})
-trials = data.TrialHandler(targetResponses, 1, method='random')
+trials = data.TrialHandler(targetResponses, nTrials/nConditions,
+    method='random')
 
 # Create stimuli
-adaptor = visual.GratingStim(experiment_window, sf=1.5, size=2,
-    mask='gauss', ori=0, phase= 0.5, contrast=1)
+adaptors = visual.ElementArrayStim(win=experiment_window, units='deg',
+    fieldPos= positionGabors(degree=6), nElements=8, sizes=2.0, sfs=1.5,
+    contrs=1, phases=0.5, elementMask='gauss') # generates 8 Gabors
 target = visual.GratingStim(experiment_window, sf=1.5, size=2,
-    mask='gauss', ori=0, phase= 0.5, contrast=1) # will be modified during experiment
+    mask='gauss', ori=0, phase= 0.5, contrast=1)
 fixation = visual.TextStim(experiment_window,text=('+'),
     alignHoriz="center", color = 'white')
 
@@ -61,32 +73,26 @@ fixation.draw()
 experiment_window.flip()
 event.waitKeys()
 
-# First adaptation period (change to 30 sec)
-for frameN in range(refRate):
-    movingGabors(fixation, adaptor, positionGabors(degree=6), 8, refRate)
+# First adaptation period
+movingGabors(fixation, adaptors, pos = positionGabors(degree=6),
+    rate=refRate, freq=8, sec=3)
 
 # Trials
 for trial in trials:
     # Re-adaptation
-    for frameN in range(refRate): # change to 5 sec
-        movingGabors(fixation, adaptor, positionGabors(degree=6), 8, refRate)
+    movingGabors(fixation, adaptors, pos = positionGabors(degree=6),
+        rate=refRate, freq=8, sec=1)
 
     #for frameN in range(0.4*refRate): # Wait for 400ms --> explain in report
     fixation.draw()
     experiment_window.flip()
     core.wait(0.4)
 
-    # Presentation target
+    # Target
     target.setPos(newPos = trial['Position'])
     target.setOri(newOri = trial['Orientation'])
-    for frameN in range(2*refRate): #for exactly 120 frames i.e. 2000ms --> fix time from seconds to frame
-        if frameN <= refRate: # onset 1000ms
-            target.setContrast(newContrast = frameN/refRate)
-        else: # offset 1000ms
-            target.setContrast(newContrast = (2*refRate - frameN)/refRate)
-        target.draw()
-        fixation.draw()
-        experiment_window.flip()
+    contrastGabor(fixation, target, direction='onset', rate=refRate, sec=1)
+    contrastGabor(fixation, target, direction='offset', rate=refRate, sec=3)
 
 core.wait(1)
 
