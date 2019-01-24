@@ -2,7 +2,7 @@
 
 The aim of this project was to create a psychophysics experiment implementing a task using the Adaptation-induced-blindness illusion (Motoyoshi et Hayakawa, 2010).
 
-The experiment is separated in two parts: adaptation and target presentation. The participants must indicate using a keypress if they perceive the target. Reaction time after target presentation is recorded.
+The experiment is separated in two parts: adaptation and target presentation. The participants must indicate using a keypress if they perceive the target. Reaction time after target presentation is recorded. Psychopy is used to expose the stimuli.
 
 First the participants are presented with adaptors i.e. eight drifting Gabors on an imaginary circle. Second, they are then presented with the target, a single Gabor whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived (Athrop et al, 2017).
 
@@ -14,7 +14,6 @@ Table of Contents
   - TrialHandler
   - Stimuli and instructions
   - Experiment
-   - Useful functions
    - Recording answers
   - Conclusion
   - Bibliography
@@ -39,15 +38,26 @@ else:
 
 General parameters
 
+Refresh rate, number conditions and number trial. Set a clock --> used later.
+
 TrialHandler
 
-Stimuli and instructions
+Useful to deal with all the conditions. Randomisation.
+
+Preparation of stimuli
+
+List with adaptors to be used later to expose them all at the same time. The target's position is determined later on in the experiment by the TrialHandler.
+Call to function determined for positions of Gabor.
 
 Experiment
 
-Useful functions
+First facilitation period with presentation of adaptors drifting at 8Hz for 20 seconds. Defined function.
+Second presentation of each target trial by trial. Also facilitation "top up" between trials.
 
 Recording answers
+
+Record both keypress indicating that participant perceived the stimulus and in case he did the reaction time. Use trial-specific paramers to also record trial identity (distance from fixation on x and y axis, and horizontal or vertical position).
+Output a csv file
 
 Conclusion
 
