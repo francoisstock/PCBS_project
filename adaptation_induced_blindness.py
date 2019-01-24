@@ -1,5 +1,5 @@
-
-Adaptation-Induced-Blindness (AIB)
+"""
+Adaptation-Induced-Blindness (AIB) experiment
 """
 
 from psychopy import data, visual, core, event, gui, clock
@@ -40,7 +40,7 @@ else:
 # Text file to save data
 fileName = expInfo['SubjectNumber'] + '_' + expInfo['dateStr']
 dataFile = open(fileName+'.csv', 'w')
-dataFile.write('positionHor,positionVer,orientation,response, rt\n')
+dataFile.write('positionHor,positionVer,orientation,response,rt\n')
 
 # Some general parameters
 trial_timer = core.Clock()
@@ -51,8 +51,10 @@ refRate = 60
 # Create TrialHandler:
 targetResponses = []
 for i in range(nConditions):
-    if i < 8: orientation = 0 # vertical
-    else: orientation = 90 # horizontal
+    if i < 8:
+        orientation = 0 # vertical
+    else:
+        orientation = 90 # horizontal
     position = positionGabors(degree=6)[i%8]
     targetResponses.append({'Orientation': orientation,
                             'Position': position})
@@ -67,10 +69,10 @@ adaptors = []
 for i in range(8):
     gabor = visual.GratingStim(experiment_window, sf=1.4, size=2, phase= 0.5,
                                ori=0, contrast=1, mask='gauss',
-                               pos = positionGabors(degree=6)[i])
+                               pos=positionGabors(degree=6)[i])
     adaptors.append(gabor)
 
-target = visual.GratingStim(experiment_window, sf=1.4, size=2, phase= 0.5,
+target = visual.GratingStim(experiment_window, sf=1.4, size=2, phase=0.5,
                             ori=0, contrast=1, mask='gauss')
 
 fixation = visual.GratingStim(experiment_window, color=-1, colorSpace='rgb',
@@ -81,7 +83,7 @@ message1 = visual.TextStim(experiment_window, pos=[0,+3],
                            text='Hit a key when ready.')
 message2 = visual.TextStim(
     experiment_window, pos=[0,-4],
-    text='Look at the fixation cross.\n Press space key when you see target.')
+    text='Look at the fixation cross.\nPress space key when you see target.')
 message1.draw()
 message2.draw()
 fixation.draw()
@@ -90,12 +92,16 @@ event.waitKeys()
 
 # First adaptation period
 movingGabors(experiment_window, fixation, adaptors, rate=refRate,
-             freq=8, sec=1)
+             freq=8, sec=20)
 
 # Trials
 for thisTrial in trials:
 
-    # Some useful parameters specific to this trial
+    # Re-adaptation
+    movingGabors(experiment_window, fixation, adaptors, rate=refRate,
+                 freq=8, sec=5)
+
+    # Some useful parameters specific to each trial
     pos = thisTrial['Position']
     ori = thisTrial['Orientation']
     target.setPos(newPos =pos)
@@ -104,16 +110,12 @@ for thisTrial in trials:
     rt = None
     timeTarget = clock.getTime()
 
-    # Re-adaptation
-    movingGabors(experiment_window, fixation, adaptors, rate=refRate,
-                 freq=8, sec=1)
-
     # Present target and record reaction
     for frameN in range(120):
         if frameN < 60:
-            target.setContrast(newContrast = (frameN+1)/60) #onset
+            target.setContrast(newContrast=(frameN+1)/60) #onset
         else:
-            target.setContrast(newContrast = 2-(frameN+1)/60) #offset
+            target.setContrast(newContrast=2-(frameN+1)/60) #offset
         target.draw()
         fixation.draw()
         experiment_window.flip()
@@ -124,8 +126,8 @@ for thisTrial in trials:
                  thisResp = 1
                  rt = clock.getTime() - timeTarget
 
-    dataFile.write('{p[0]}, {p[1]}'.format(p=pos))
-    dataFile.write(',{}, {}, {}\n'.format(ori, thisResp, rt))
+    dataFile.write('{p[0]},{p[1]}'.format(p=pos))
+    dataFile.write(',{},{},{}\n'.format(ori, thisResp, rt))
 
 core.wait(1)
 
