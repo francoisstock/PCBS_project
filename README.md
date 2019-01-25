@@ -8,20 +8,19 @@ First, the participants are presented with adaptors i.e. eight drifting Gabor pa
 
 Table of Contents
 
- * Adaptation-induced-blindness experiment
-    * Dialog box
-    * General parameters and output file
-    * TrialHandler
-    * Stimuli and instructions
-    * Experiment
-      * Facilitation
-      * Target presentation
-      * Recording answers and output
-    * Conclusion
-    * Bibliography
+ * [Adaptation-induced-blindness experiment] 
+    * [Dialog box] (## Dialog box)
+    * [General parameters and output file]
+    * [TrialHandler]
+    * [Stimuli and instructions]
+    * [Experiment]
+      * [Facilitation]
+      * [Target presentation]
+      * [Recording answers and output]
+    * [Conclusion]
+    * [Bibliography]
  
- Dialog box
- ========
+## Dialog box
  
 First we try to load a parameter file if the experiment has already been run. If that fails, the code creates a default set of parameters that are stored in a dictionary called _expInfo_. The current time is then recorded in the parameter file.
 
@@ -40,8 +39,7 @@ if dlg.OK:
 else:  
     core.quit()  # the user hit cancel so exit
 
-General parameters and output file
-=====================
+## General parameters and output file
 
 A csv file is created, named using the parameters file (subject number and time of the experiment). A name is given for each column of data that will be collected. This includes the trial identity i.e. how far away from the fixation point on the x and y axes the target is and its orientation (_positionHor_, _positionVer_ and _orientation_), a Boolean including whether the space key was pressed or not (_response_) and reaction time (_rt_).
 
