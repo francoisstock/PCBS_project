@@ -26,8 +26,8 @@ First, the participants are presented with adaptors i.e. eight drifting Gabor pa
  
 First we try to load a parameter file if the experiment has already been run. If that fails, the code creates a default set of parameters that are stored in a dictionary called _expInfo_. The current time is then recorded in the parameter file.
 
-try:  
-    expInfo = fromFile('lastParams.pickle')  
+      try:  
+expInfo = fromFile('lastParams.pickle')  
 except:  
     expInfo = {'SubjectNumber':'enter_number'}  
     
