@@ -8,15 +8,17 @@ First the participants are presented with adaptors i.e. eight drifting Gabors on
 
 Table of Contents
 
- - Adaptation-induced-blindness experiment
-    - Dialog box
-    - General parameters
-    - TrialHandler
-    - Stimuli and instructions
-    - Experiment
-      - Recording answers
-    - Conclusion
-    - Bibliography
+ * Adaptation-induced-blindness experiment
+    * Dialog box
+    * General parameters and text file for output
+    * TrialHandler
+    * Stimuli and instructions
+    * Experiment
+      * Facilitation
+      * Target presentation
+      * Recording answers and output
+    * Conclusion
+    * Bibliography
  
  Dialog box
  ========
@@ -37,10 +39,16 @@ if dlg.OK:
 else:  
     core.quit()  # the user hit cancel so exit
 
-General parameters
+General parameters and text file for output
 =====================
 
-Before starting the experiment, some general parameters are defined. A clock is defined to keep track of time during the experiment. The number of conditions is also specified: 16 for the 8 positions and 2 orientations (verical-horizontal) of the target. Then the number of trials is then determine: Here there are only 16 so that the experiment is hsort and one datum is collected to each condition. If running the experiment to get useful data, it is necessary to increase the number of trials in order to have enough data to generalise for each conditions (Careful: nTrials must be divisible by 16 for the TrialHandler to work properly). Finally, the refresh rate is set at 60Hz here, and the variable can be modified easily to adapt the experiment to the refresh rate of the device on which it is run.
+A data file is created, on which the output will be written for each trial. The data includes the trial identity (_positionHor_, _positionVer_ and _orientation_), as well as keypress indicating if target was perceived (_response_) and reaction time (_rt_).
+
+fileName = expInfo['SubjectNumber'] + '_' + expInfo['dateStr']  
+dataFile = open(fileName+'.csv', 'w')  
+dataFile.write('positionHor,positionVer,orientation,response,rt\n')  
+
+Then, before starting the experiment, some general parameters are defined. A clock is defined to keep track of time during the experiment. The number of conditions is also specified: 16 for the 8 positions and 2 orientations (verical-horizontal) of the target. Then the number of trials is then determine: Here there are only 16 so that the experiment is hsort and one datum is collected to each condition. If running the experiment to get useful data, it is necessary to increase the number of trials in order to have enough data to generalise for each conditions (Careful: nTrials must be divisible by 16 for the TrialHandler to work properly). Finally, the refresh rate is set at 60Hz here, and the variable can be modified easily to adapt the experiment to the refresh rate of the device on which it is run.
 
 trial_timer = core.Clock()  
 nConditions = 16 # 2 orientations and 8 positions  
@@ -50,7 +58,7 @@ refRate = 60
 TrialHandler
 ========
 
-This class is utilised to handle trial sequencing. It allows to define the specificities (here the position of the target and its orientation) of each condition in advance of the experiment. How many trials there is for each condition is specified, and the trials are randomised in advance of running the experiment.
+This class is utilised to handle trial sequencing. It allows to define the specificities (here the position of the target and its orientation) of each condition in advance of the experiment. The position of the gabors are determined using a function (_positionGabors_) that was defined at the beginning of the module and returns n equidistant Gabor patches on an imaginary circle whith a specified radius (here 6 degrees). How many trials there is for each condition is specified, and the trials are randomised in advance of running the experiment.
 
 targetResponses = []  
 for i in range(nConditions):  
@@ -63,23 +71,94 @@ for i in range(nConditions):
                             'Position': position})  
 trials = data.TrialHandler(targetResponses, nTrials/nConditions,  
                            method='random')  
+                           
 
 Preparation of stimuli
 ============
 
 List with adaptors to be used later to expose them all at the same time. The target's position is determined later on in the experiment by the TrialHandler.
-Call to function determined for positions of Gabor.
+
+experiment_window = visual.Window([1366,768], allowGUI=True,  
+                                  monitor='testMonitor', units='deg')  
+
+adaptors = []  
+for i in range(8):  
+    gabor = visual.GratingStim(experiment_window, sf=1.4, size=2, phase= 0.5,  
+                               ori=0, contrast=1, mask='gauss',  
+                               pos=positionGabors(degree=6)[i])  
+    adaptors.append(gabor)  
+
+target = visual.GratingStim(experiment_window, sf=1.4, size=2, phase=0.5,  
+                            ori=0, contrast=1, mask='gauss')  
+
+fixation = visual.GratingStim(experiment_window, color=-1, colorSpace='rgb',  
+                              tex=None, mask='circle', size=0.2)  
 
 Experiment
 =====
 
-First facilitation period with presentation of adaptors drifting at 8Hz for 20 seconds. Defined function.
+## Facilitation
+
+First facilitation period with presentation of adaptors drifting at 8Hz for 20 seconds. 
+
+movingGabors(experiment_window, fixation, adaptors, rate=refRate,  
+             freq=8, sec=20)  
+
+Defined function.
+
+def movingGabors(win, fix, gabors, freq, rate, sec):  
+    """ Draw drifting Gabors at given frequency"""  
+    for frameN in range(sec*rate):  
+        for i in range(len(gabors)):  
+            gabors[i].setPhase(freq/rate, '+')  
+            gabors[i].draw()  
+        fix.draw()  
+        win.flip()  
+
+## Target presentation
+
 Second presentation of each target trial by trial. Also facilitation "top up" between trials.
 
-## Recording answers
+for thisTrial in trials:
 
-Record both keypress indicating that participant perceived the stimulus and in case he did the reaction time. Use trial-specific paramers to also record trial identity (distance from fixation on x and y axis, and horizontal or vertical position).
+   movingGabors(experiment_window, fixation, adaptors, rate=refRate,
+                 freq=8, sec=5)
+
+Then some useful parameters for the specific trial are defined. Some of this information is extacted from the TrialHandler, and we create variables and set a time for recording the participants' answers
+
+pos = thisTrial['Position']
+ori = thisTrial['Orientation']
+target.setPos(newPos =pos)
+target.setOri(newOri = ori)
+thisResp = 0
+rt = None
+timeTarget = clock.getTime()
+
+The target is presented, with a gradually changing contrast with onset and offset both at 1000ms.
+
+for frameN in range(120):  
+        if frameN < 60:  
+            target.setContrast(newContrast=(frameN+1)/60) #onset  
+        else:  
+            target.setContrast(newContrast=2-(frameN+1)/60) #offset  
+        target.draw()  
+        fixation.draw()  
+        experiment_window.flip()  
+
+## Recording answers and output data file
+
+For each trial, record both keypress indicating that participant perceived the stimulus and in case he did the reaction time. Use trial-specific paramers to also record trial identity (distance from fixation on x and y axis, and horizontal or vertical position).
+
+allKeys= event.getKeys()
+        for thisKey in allKeys:
+            if thisKey=='space':
+                 thisResp = 1
+                 rt = clock.getTime() - timeTarget
+
 Output a csv file
+
+dataFile.write('{p[0]},{p[1]}'.format(p=pos))  
+dataFile.write(',{},{},{}\n'.format(ori, thisResp, rt))  
 
 Conclusion
 ======
