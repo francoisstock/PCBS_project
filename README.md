@@ -11,7 +11,7 @@ First, the participants are presented with adaptors i.e. eight drifting Gabor pa
 **Table of Contents**
 
  * [Adaptation-induced-blindness experiment] 
-    * [Dialog box] (## Dialog box)
+    * [Dialog box] (#dialog-box)
     * [General parameters and output file]
     * [TrialHandler]
     * [Stimuli and instructions]
