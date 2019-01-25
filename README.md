@@ -2,15 +2,15 @@
 
 The aim of this project was to create a psychophysics experiment implementing a task using the Adaptation-induced-blindness illusion (Motoyoshi et Hayakawa, 2010).
 
-The experiment is separated in two parts: adaptation and target presentation. The participants must indicate using a keypress if they perceive the target. Reaction time after target presentation is recorded. PsychoPy is used to expose the stimuli.
+The experiment is separated in two parts: a facilitation period and then target presentation. The participants must indicate using a keypress if they perceive the target. Reaction time after target presentation is recorded. PsychoPy is used to expose the stimuli.
 
-First the participants are presented with adaptors i.e. eight drifting Gabors on an imaginary circle. Second, they are then presented with the target, a single Gabor whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived (Apthorp et al, 2017).
+First, the participants are presented with adaptors i.e. eight drifting Gabor patches on an imaginary circle. Second, they are presented with the target, a single Gabor patch whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived consciously (Apthorp et al, 2017).
 
 Table of Contents
 
  * Adaptation-induced-blindness experiment
     * Dialog box
-    * General parameters and text file for output
+    * General parameters and output file
     * TrialHandler
     * Stimuli and instructions
     * Experiment
@@ -23,15 +23,16 @@ Table of Contents
  Dialog box
  ========
  
-The first lines try to load a parameter file from a previous run of the experiment, and if it fails creates a default set of parameters that are stored in a dictionary called _expInfo_.
+First we try to load a parameter file if the experiment has already been run. If that fails, the code creates a default set of parameters that are stored in a dictionary called _expInfo_. The current time is then recorded in the parameter file.
 
 try:  
     expInfo = fromFile('lastParams.pickle')  
 except:  
-    expInfo = {'SubjectNumber':'enter number'}  
-expInfo['dateStr'] = data.getDateStr()  # add the current time
+    expInfo = {'SubjectNumber':'enter_number'}  
+    
+expInfo['dateStr'] = data.getDateStr()  # add the current time  
 
-Then a dialog box _dlg_ is created, in which the subject number is manually added. With the current time, this data is used to name the csv file created to save the data.
+A dialog box _dlg_ is created, in which the subject number is added manually.
 
 dlg = gui.DlgFromDict(expInfo, title='AIB Exp', fixed=['dateStr'])  
 if dlg.OK:  
@@ -39,16 +40,16 @@ if dlg.OK:
 else:  
     core.quit()  # the user hit cancel so exit
 
-General parameters and text file for output
+General parameters and output file
 =====================
 
-A data file is created, on which the output will be written for each trial. The data includes the trial identity (_positionHor_, _positionVer_ and _orientation_), as well as keypress indicating if target was perceived (_response_) and reaction time (_rt_).
+A csv file is created, named using the parameters file (subject number and time of the experiment). A name is given for each column of data that will be collected. This includes the trial identity i.e. how far away from the fixation point on the x and y axes the target is and its orientation (_positionHor_, _positionVer_ and _orientation_), a Boolean including whether the space key was pressed or not (_response_) and reaction time (_rt_).
 
 fileName = expInfo['SubjectNumber'] + '_' + expInfo['dateStr']  
 dataFile = open(fileName+'.csv', 'w')  
 dataFile.write('positionHor,positionVer,orientation,response,rt\n')  
 
-Then, before starting the experiment, some general parameters are defined. A clock is defined to keep track of time during the experiment. The number of conditions is also specified: 16 for the 8 positions and 2 orientations (verical-horizontal) of the target. Then the number of trials is then determine: Here there are only 16 so that the experiment is hsort and one datum is collected to each condition. If running the experiment to get useful data, it is necessary to increase the number of trials in order to have enough data to generalise for each conditions (Careful: nTrials must be divisible by 16 for the TrialHandler to work properly). Finally, the refresh rate is set at 60Hz here, and the variable can be modified easily to adapt the experiment to the refresh rate of the device on which it is run.
+Then some general parameters are defined. A clock keeps track of time during the experiment. The number of conditions is then specified: 16 for the 8 positions and 2 orientations (verical-horizontal) of the target. Then the number of trials is also determine: Here there are only 16 so that the experiment is hsort and one datum is collected to each condition. If running the experiment to get useful data, it is necessary to increase the number of trials in order to have enough data to generalise for each conditions (Careful: nTrials must be divisible by 16 for the TrialHandler to work properly). Finally, the refresh rate is set at 60Hz here, and the variable can be modified easily to adapt the experiment to the refresh rate of the device on which it is run.
 
 trial_timer = core.Clock()  
 nConditions = 16 # 2 orientations and 8 positions  
