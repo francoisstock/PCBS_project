@@ -9,8 +9,8 @@ First the participants are presented with adaptors i.e. eight drifting Gabors on
 Table of Contents
 
  - Adaptation-induced-blindness experiment
-  - Dialog box
-  - General parameters
+  * Dialog box
+  * General parameters
   - TrialHandler
   - Stimuli and instructions
   - Experiment
