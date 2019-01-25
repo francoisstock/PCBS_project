@@ -6,7 +6,9 @@ The experiment is separated in two parts: a facilitation period and then target 
 
 First, the participants are presented with adaptors i.e. eight drifting Gabor patches on an imaginary circle. Second, they are presented with the target, a single Gabor patch whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived consciously (Apthorp et al, 2017).
 
-Table of Contents
+
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
 
  * [Adaptation-induced-blindness experiment] 
     * [Dialog box] (## Dialog box)
@@ -19,7 +21,10 @@ Table of Contents
       * [Recording answers and output]
     * [Conclusion]
     * [Bibliography]
- 
+    
+<!-- markdown-toc end -->
+
+
 ## Dialog box
  
 First we try to load a parameter file if the experiment has already been run. If that fails, the code creates a default set of parameters that are stored in a dictionary called _expInfo_. The current time is then recorded in the parameter file.
