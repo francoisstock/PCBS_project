@@ -19,6 +19,7 @@ Table of Contents
   - Bibliography
  
  Dialog box
+ ========
  
 The first lines try to load a parameter file from a previous run of the experiment, and if it fails creates a default set of parameters that are stored in a dictionary called _expInfo_.
 
