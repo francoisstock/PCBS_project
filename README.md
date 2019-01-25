@@ -11,12 +11,12 @@ Table of Contents
  - Adaptation-induced-blindness experiment
     - Dialog box
     - General parameters
-  - TrialHandler
-  - Stimuli and instructions
-  - Experiment
-   - Recording answers
-  - Conclusion
-  - Bibliography
+    - TrialHandler
+    - Stimuli and instructions
+    - Experiment
+      - Recording answers
+    - Conclusion
+    - Bibliography
  
  Dialog box
  ========
@@ -85,7 +85,8 @@ Conclusion
 ======
 
 If I had more time:
- - Analysis of the data
+ - Analysis of the data  
+ 
 I would describe myself as a beginner in programming before the beginning of the class. My only experience was coding an experiment with Matlab during a five-week internship last summer. So my first experience with Python was this class. In this class I learned, among other things, the basics of the Python language and some essential functions, how to define functions in Python, how to use Expyriment and Psychopy to expose stimuli in psychophysical experiments, how to format strings and how to output a data file with the data generated during an experiment. My suggestion for the future would be to give a grade (even one that counts for a very small percentage of the final mark) for some of the simple exercises that we did at the beginning of the class. Unfortunately, I think it is harder to motivate oneself to work for a class with no short-term goals when we have many other classes running at the same time which have regular assessment.
 
 Bibliography
