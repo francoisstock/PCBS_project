@@ -4,7 +4,7 @@ The aim of this project was to create a psychophysics experiment implementing a 
 
 The experiment is separated in two parts: adaptation and target presentation. The participants must indicate using a keypress if they perceive the target. Reaction time after target presentation is recorded. Psychopy is used to expose the stimuli.
 
-First the participants are presented with adaptors i.e. eight drifting Gabors on an imaginary circle. Second, they are then presented with the target, a single Gabor whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived (Athrop et al, 2017).
+First the participants are presented with adaptors i.e. eight drifting Gabors on an imaginary circle. Second, they are then presented with the target, a single Gabor whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived (Apthorp et al, 2017).
 
 Table of Contents
 
@@ -74,5 +74,5 @@ If I had more time:
 Bibliography
 ========
 
-Motoyoshi et Hayakawa (2010) : https://jov.arvojournals.org/article.aspx?articleid=2121085  
-Athrop et al (2017): https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5433556/
+Apthorp, D., Griffiths, S., Alais, D., & Cass., J. (2017). Adaptation-Induced blindness is orientation-tuned and monocular. _I-Perception_, 8(2), 1-15. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5433556/  
+Motoyoshi, I. & Hayakawa, S. (2010).Adaptation-induced blindness to sluggish stimuli. _Journal of Vision_, 10(2), 1-8. https://jov.arvojournals.org/article.aspx?articleid=2121085  
