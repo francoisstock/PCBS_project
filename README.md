@@ -23,18 +23,18 @@ Table of Contents
  
 The first lines try to load a parameter file from a previous run of the experiment, and if it fails creates a default set of parameters that are stored in a dictionary called _expInfo_.
 
-try:
-    expInfo = fromFile('lastParams.pickle')
-except:
-    expInfo = {'SubjectNumber':'enter number'}
+try:  
+    expInfo = fromFile('lastParams.pickle')  
+except:  
+    expInfo = {'SubjectNumber':'enter number'}  
 expInfo['dateStr'] = data.getDateStr()  # add the current time
 
 Then a dialog box _dlg_ is created, in which the subject number is manually added. With the current time, this data is used to name the csv file created to save the data.
 
-dlg = gui.DlgFromDict(expInfo, title='AIB Exp', fixed=['dateStr'])
-if dlg.OK:
-    toFile('lastParams.pickle', expInfo)  # save params to file for next time
-else:
+dlg = gui.DlgFromDict(expInfo, title='AIB Exp', fixed=['dateStr'])  
+if dlg.OK:  
+    toFile('lastParams.pickle', expInfo)  # save params to file for next time  
+else:  
     core.quit()  # the user hit cancel so exit
 
 General parameters
@@ -74,5 +74,5 @@ If I had more time:
 Bibliography
 ========
 
-Motoyoshi et Hayakawa (2010) : https://jov.arvojournals.org/article.aspx?articleid=2121085
+Motoyoshi et Hayakawa (2010) : https://jov.arvojournals.org/article.aspx?articleid=2121085  
 Athrop et al (2017): https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5433556/
