@@ -7,11 +7,10 @@ The experiment is separated in two parts: a facilitation period and then target 
 First, the participants are presented with adaptors i.e. eight drifting Gabor patches on an imaginary circle. Second, they are presented with the target, a single Gabor patch whose contrast increases gradually to maximal value and then decreases gradually again to 0. The targets are either horizontal or vertical, and the hypothesis is that only the former will be perceived consciously (Apthorp et al, 2017).
 
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
  * [Adaptation-induced-blindness experiment] 
-    * [Dialog box] (#dialog-box)
+    * [Dialog box]
     * [General parameters and output file]
     * [TrialHandler]
     * [Stimuli and instructions]
@@ -21,8 +20,6 @@ First, the participants are presented with adaptors i.e. eight drifting Gabor pa
       * [Recording answers and output]
     * [Conclusion]
     * [Bibliography]
-    
-<!-- markdown-toc end -->
 
 
 ## Dialog box
@@ -124,13 +121,13 @@ for thisTrial in trials:
 
 Then some useful parameters specific to the trial are extracted from the TrialHandler. In order to record the participants' answers, some variables are defined and we record the time just before presenting the target.
 
-   pos = thisTrial['Position']
-   ori = thisTrial['Orientation']
-   target.setPos(newPos =pos)
-   target.setOri(newOri = ori)
-   thisResp = 0
-   rt = None
-   timeTarget = clock.getTime()
+   pos = thisTrial['Position']  
+   ori = thisTrial['Orientation']  
+   target.setPos(newPos =pos)  
+   target.setOri(newOri = ori)  
+   thisResp = 0  
+   rt = None 
+   timeTarget = clock.getTime()  
 
 The target is then presented. It starts with contrast 0 and then the contrast gradually increases to 1 during 1000ms. It then decreases gradually back to 0 for 1000ms too.
 
@@ -147,11 +144,11 @@ The target is then presented. It starts with contrast 0 and then the contrast gr
 
 For each trial, the variable _thisKey_ records whether the participant pressed the 'space' key, indicating that they have perceived the target. If no keypress is recorded, the variable remains equal to 0. The time when the key is pressed is obtained, and the time when the trial started is substracted from it in order to determine the reaction time.
 
-allKeys= event.getKeys()
-        for thisKey in allKeys:
-            if thisKey=='space':
-                 thisResp = 1
-                 rt = clock.getTime() - timeTarget
+allKeys= event.getKeys()  
+        for thisKey in allKeys: 
+            if thisKey=='space':  
+                 thisResp = 1 
+                 rt = clock.getTime() - timeTarget  
 
 The results are written in a csv file, in which the trial identity (distance from fixation on x and y axis and orientation) is also recorded.
 
