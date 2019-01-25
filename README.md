@@ -38,35 +38,41 @@ else:
     core.quit()  # the user hit cancel so exit
 
 General parameters
+=====================
 
 Refresh rate, number conditions and number trial. Set a clock --> used later.
 
 TrialHandler
+========
 
 Useful to deal with all the conditions. Randomisation.
 
 Preparation of stimuli
+============
 
 List with adaptors to be used later to expose them all at the same time. The target's position is determined later on in the experiment by the TrialHandler.
 Call to function determined for positions of Gabor.
 
 Experiment
+=====
 
 First facilitation period with presentation of adaptors drifting at 8Hz for 20 seconds. Defined function.
 Second presentation of each target trial by trial. Also facilitation "top up" between trials.
 
-Recording answers
+## Recording answers
 
 Record both keypress indicating that participant perceived the stimulus and in case he did the reaction time. Use trial-specific paramers to also record trial identity (distance from fixation on x and y axis, and horizontal or vertical position).
 Output a csv file
 
 Conclusion
+======
 
 If I had more time:
  - Analysis of the data
  Coding level and what I learned
 
 Bibliography
+========
 
 Motoyoshi et Hayakawa (2010) : https://jov.arvojournals.org/article.aspx?articleid=2121085
 Athrop et al (2017): https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5433556/
